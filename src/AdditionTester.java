@@ -2,15 +2,16 @@ import static org.junit.Assert.*;
 import org.junit.Before;
 import org.junit.Test;
 
-
 public class AdditionTester {
 
 	@Test
 	public void test() {
 		for (int i = 0; i < 1000; i++)
 			for (int digs = 0; digs < 6; digs++)
-				for (int carries = 0; carries < digs; carries++)
+				for (int carries = 0; carries < digs; carries++) {
 					Problem p = ProblemGenerator.makeAdditionProb(digs, carries);
+					assertEquals(carries, numCarries(p.getOp1(), p.getOp2(), digs));
+				}
 	}
 
 	private int numCarries(int a, int b, int numDig) {

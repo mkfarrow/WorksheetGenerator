@@ -4,15 +4,18 @@ import java.util.HashSet;
 import com.google.gson.*;
 
 public class ProblemGenerator {
-
-	public ProblemGenerator() {
-		
+	private String type;
+	private JsonObject description;
+	private Gson parser = new Gson();
+	
+	/*
+	public ProblemGenerator() {	
 	}
+	*/
 	
 	public ProblemGenerator(JsonObject probInfo) {
-		String type = probInfo.get("probType").getAsString();
-		JsonObject description = probInfo.getAsJsonObject("description");
-		Gson parser = new Gson();
+		type = probInfo.get("probType").getAsString();
+		description = probInfo.getAsJsonObject("description");
 		
 		if (type.equals("intAdd")) {
 			IntAddDescriptor probDesc = parser.fromJson(description, IntAddDescriptor.class);
@@ -29,8 +32,7 @@ public class ProblemGenerator {
 		} else if (type.equals("intDiv")) {
 			
 		} else {
-			System.err.println("problem type not supported");
-			System.exit(1);
+			throw new IllegalArgumentException("problem type not supported");
 		}
 	}
 
@@ -46,7 +48,7 @@ public class ProblemGenerator {
 		return problems;
 	}
 
-
+	// modify this to make it accept IntAddDescriptor
 	public static Problem makeAdditionProb(int numDigits, int carries) {
 		if (carries > numDigits || numDigits <= 0)
 			throw new IllegalArgumentException();
@@ -80,7 +82,12 @@ public class ProblemGenerator {
 		int op2 = intFromArray(second);
 		return new Problem(op1, op2, '+');
 	}
-
+	
+	private static Problem makeSubtractionProblem(IntSubDescriptor desc) {
+		
+		return null;
+	}
+	
 	private static int intFromArray(int[] data) {
 		String result = "";
 		for (int i = 0; i < data.length; i++)
