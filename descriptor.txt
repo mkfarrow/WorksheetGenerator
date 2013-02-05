@@ -4,7 +4,7 @@ Problem Descriptor JSON
 problemType:
 	intAddition:
 		# carries
-		# digits per operator (array)
+		# digits per operator
 	fracAddition:
 		# denominators to convert (in [0,1,2])
 		# sum > 1 (true or false)

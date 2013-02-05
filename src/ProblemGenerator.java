@@ -1,44 +1,62 @@
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
 import java.util.HashSet;
 import com.google.gson.*;
 
 public class ProblemGenerator {
-	private String type;
-	private JsonObject description;
-	private Gson parser = new Gson();
 	
 	/*
-	public ProblemGenerator() {	
-	}
-	*/
+	 * Maps problem type Strings (as in the JSON description object) to an empty instance of the
+	 * class used to store that type. Used to get the Class object associated with the problem type
+	 */
+	private static final Map<String, ProblemDescriptor> typeToClass = getTypeMap();
+	 
+	/*
+	 * Parses JSON objects (see Google's API for Gson and the related classes here:
+	 * <a href="http://google-gson.googlecode.com/svn/trunk/gson/docs/javadocs/index.html" />
+	 */ 
+	private static final Gson parser = new Gson();
 	
-	public ProblemGenerator(JsonObject probInfo) {
-		type = probInfo.get("probType").getAsString();
-		description = probInfo.getAsJsonObject("description");
+	/*
+	 * This will probably change once a single instance of ProblemGenerator can generate multiple
+	 * problem types
+	 */
+	private ProblemDescriptor pd;
 		
-		if (type.equals("intAdd")) {
-			IntAddDescriptor probDesc = parser.fromJson(description, IntAddDescriptor.class);
-			System.out.println(probDesc.numCarries);
-			System.out.println(Arrays.toString(probDesc.digitsPerOp));
-		} else if (type.equals("fracAdd")) {
-			
-		} else if (type.equals("intSub")) {
-			
-		} else if (type.equals("fracSub")) {
-			
-		} else if (type.equals("intMult")) {
-			
-		} else if (type.equals("intDiv")) {
-			
-		} else {
+	/**
+	 * Constructs a ProblemGenerator that can generate random problems of the type described by
+	 * the ProblemDescriptor passed in
+	 * 
+	 * @param pd the type of problem the ProblemGenerator will generate
+	 */
+	public ProblemGenerator(ProblemDescriptor pd) {	
+		this.pd = pd;
+	}
+	
+	/**
+	 * Constructs a ProblemGenerator that can generate random problems of the type described by
+	 * the JsonObject passed in
+	 * 
+	 * @param probInfo a JSON object with the fields probType: <some problem type>,
+	 * description: {<js object that describes the fields of that problem>}
+	 */
+	public ProblemGenerator(JsonObject probInfo) {
+		String type = probInfo.get("probType").getAsString();
+		JsonObject jsonDescription = probInfo.getAsJsonObject("description");	
+		
+		ProblemDescriptor className = typeToClass.get(type);
+		
+		if (className == null)
 			throw new IllegalArgumentException("problem type not supported");
-		}
+		
+		pd = parser.fromJson(jsonDescription, className.getClass());
 	}
 
+	
 	public Problem next() {
-
-		return null;
+		return pd.makeProblem();
 	}
 
 	public Problem[] nextN(int n) {
@@ -48,81 +66,21 @@ public class ProblemGenerator {
 		return problems;
 	}
 
-	// modify this to make it accept IntAddDescriptor
-	public static Problem makeAdditionProb(int numDigits, int carries) {
-		if (carries > numDigits || numDigits <= 0)
-			throw new IllegalArgumentException();
-		int[] first = new int[numDigits]; // this is the first operand
-		int[] second = new int[numDigits]; // second operand
-
-		// pick which indices there will be carries at
-		Set<Integer> carryIndices = new HashSet<Integer>();
-		while (carryIndices.size() < carries)
-			carryIndices.add((int) (Math.random() * first.length));
-
-		// fill in digits for first operand
-		for (int i = 0; i < first.length; i++) {
-			first[i] = DigitGenerator.randomNonZeroDigit();
-			if (carryIndices.contains(i + 1) && first[i] == 9 && !carryIndices.contains(i))
-				first[i]--; // a carry in the digit to the right would cause an unwanted carry here
-		}
-
-		// fill in digits for second operand
-		int carriedIn = 0;
-		for (int i = second.length - 1; i >= 0; i--) {
-			int addend = Math.min(9, first[i] + carriedIn);
-			if (carryIndices.contains(i))
-				second[i] = DigitGenerator.withCarry(addend);
-			else
-				second[i] = DigitGenerator.noCarry(addend);
-			carriedIn = (first[i] + second[i] + carriedIn) / 10;
-		}
-
-		int op1 = intFromArray(first);
-		int op2 = intFromArray(second);
-		return new Problem(op1, op2, '+');
-	}
-	
-	private static Problem makeSubtractionProblem(IntSubDescriptor desc) {
+	/**
+	 * Initializes the type map to store all of the different problem types, indexed by the String
+	 * they are referred to by in their JSON representation.
+	 * 
+	 * @return a map from type name to the an empty instance of the class it refers to
+	 */
+	private static Map<String, ProblemDescriptor> getTypeMap() {
+		Map<String, ProblemDescriptor> result = new HashMap<String, ProblemDescriptor>();
 		
-		return null;
-	}
-	
-	private static int intFromArray(int[] data) {
-		String result = "";
-		for (int i = 0; i < data.length; i++)
-			result += "" + data[i];
-		return Integer.parseInt(result);
-	}
-	
-	
-	
-	/**************************************************************
-	 * The following descriptor classes encapsulate the parameters
-	 * necessary to generate different types of problems.
-	 **************************************************************/
-	public class IntAddDescriptor {
-		int numCarries;
-		int[] digitsPerOp; // number of digits in each operator	
+		// populate the map with all the problem types
+		result.put("intAdd", new IntAddDescriptor());
+		result.put("intSub", new IntSubDescriptor());
+		result.put("fracAdd", new FracAddDescriptor());
+		result.put("fracSub", new FracSubDescriptor());
 		
-		public IntAddDescriptor() { }
+		return result;
 	}
-	
-	public class FracAddDescriptor {
-		int denomsToConvert; // 0, 1, or 2
-		boolean sumOverOne;
-	}
-		
-	public class IntSubDescriptor {
-		int borrows;
-		int[] numDigits;
-		boolean borrowAcrossZero;
-		boolean canBeNeg;
-	}
-	
-	public class FracSubDescriptor {
-		int denomsToConvert;
-		boolean negativeDiff;
-	}
-
 }

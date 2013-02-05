@@ -10,16 +10,16 @@ public class Tester {
 								"probType: \"intAdd\"," + 
 								"description: {" + 
 									"numCarries: 3," + 
-									"digitsPerOp: [5,5]" + 
+									"numDigits: 5" + 
 								"}" + 
 							"}";
 
 		String subProb = 	"{" + 
 								"probType: \"intSub\"," +
 								"description: {" + 
-									"numBorrows: 3," + 
-									"digitsPerOp: [5,3]," +
-									"accrossZero: false," +
+									"borrows: 1," + 
+									"numDigits: [2,2]," +
+									"borrowAccrossZero: false," +
 									"canBeNeg: false" +
 								"}" + 
 							"}";
@@ -32,8 +32,24 @@ public class Tester {
 								"}" +
 							"}";
 
+		
 		JsonParser parser = new JsonParser();
 		JsonObject description = parser.parse(addProb).getAsJsonObject();
-		ProblemGenerator pg = new ProblemGenerator(description);	
+		ProblemGenerator pg = new ProblemGenerator(description);
+		
+		for (int i = 0; i < 100; i++) {
+			System.out.println(pg.next());
+		}
+
+	}
+	
+	private int[] arrayFromInt(int num, int numDig) {
+		String data = "" + num;
+		while (data.length() < numDig)
+			data = "0" + data;
+		int[] result = new int[data.length()];
+		for (int i = 0; i < result.length; i++)
+			result[i] = data.charAt(i) - '0';
+		return result;
 	}
 }
