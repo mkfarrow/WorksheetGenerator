@@ -53,7 +53,6 @@ public class ProblemGenerator {
 		
 		pd = parser.fromJson(jsonDescription, className.getClass());
 	}
-
 	
 	public Problem next() {
 		return pd.makeProblem();
@@ -70,7 +69,7 @@ public class ProblemGenerator {
 	 * Initializes the type map to store all of the different problem types, indexed by the String
 	 * they are referred to by in their JSON representation.
 	 * 
-	 * @return a map from type name to the an empty instance of the class it refers to
+	 * @return a Map from type name to an empty instance of the class the name refers to
 	 */
 	private static Map<String, ProblemDescriptor> getTypeMap() {
 		Map<String, ProblemDescriptor> result = new HashMap<String, ProblemDescriptor>();

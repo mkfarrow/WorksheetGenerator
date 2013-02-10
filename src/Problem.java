@@ -1,32 +1,14 @@
-public class Problem {
-  private int operand1, operand2;
-  private int solution;
-  private char operation;
+public abstract class Problem {
 
-  public Problem(int op1, int op2, char operation) {
-    this.operation = operation;
-    operand1 = op1;
-    operand2 = op2;
-    solution = operand1+operand2;
-  }
-
-  public int getOp1() {
-    return operand1;
-  }
-
-  public int getOp2() {
-    return operand2;
-  }
-
-  public int solve() {
-    return solution;
-  }
-
-  public char getOperator() {
-    return operation;
-  }
-
-  public String toString() {
-    return operand1 + " " + operation + " " + operand2 + " = " + solution + "\n";
-  }
+	public abstract int getWrongAnswer();
+	
+	static int[] arrayFromInt(int num, int numDig) {
+		String data = "" + num;
+		while (data.length() < numDig)
+			data = "0" + data;
+		int[] result = new int[data.length()];
+		for (int i = 0; i < result.length; i++)
+			result[i] = data.charAt(i) - '0';
+		return result;
+	}
 }

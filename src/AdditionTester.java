@@ -15,8 +15,8 @@ public class AdditionTester {
 				for (int carries = 0; carries < digs; carries++) {
 					ProblemDescriptor pd = new IntAddDescriptor(carries, digs);
 					ProblemGenerator pg = new ProblemGenerator(pd);
-					Problem p = pg.next();
-					assertEquals(carries, numCarries(p.getOp1(), p.getOp2(), digs));
+					IntAddProblem p = (IntAddProblem) pg.next();
+					assertEquals(carries, numCarries(p.getTerm1(), p.getTerm2(), digs));
 				}
 	}
 

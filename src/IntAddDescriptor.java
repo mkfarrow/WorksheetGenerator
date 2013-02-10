@@ -56,6 +56,6 @@ public class IntAddDescriptor extends ProblemDescriptor {
 			carriedIn = (first[i] + second[i] + carriedIn) / 10;
 		}
 		
-		return new Problem(intFromArray(first), intFromArray(second), '+');
+		return new IntAddProblem(intFromArray(first), intFromArray(second));
 	}
 }
