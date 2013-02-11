@@ -34,11 +34,11 @@ public class Tester {
 
 		
 		JsonParser parser = new JsonParser();
-		JsonObject description = parser.parse(addProb).getAsJsonObject();
+		JsonObject description = parser.parse(subProb).getAsJsonObject();
 		ProblemGenerator pg = new ProblemGenerator(description);
 		
 		for (int i = 0; i < 100; i++) {
-			System.out.println(pg.next());
+			pg.next();
 		}
 
 	}

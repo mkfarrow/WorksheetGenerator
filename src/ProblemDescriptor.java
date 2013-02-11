@@ -42,9 +42,13 @@ public abstract class ProblemDescriptor {
 	 * @return a set of n indices between 0 and length (exclusive)
 	 */
 	static Set<Integer> chooseIndices(int n, int length) {
+		return chooseIndices(n, 0, length);
+	}
+	
+	static Set<Integer> chooseIndices(int n, int min, int max) {
 		Set<Integer> result = new HashSet<Integer>();
 		while (result.size() < n)
-			result.add((int) (Math.random() * length));
+			result.add(DigitGenerator.inRange(min, max));
 		return result;
 	}
 }

@@ -42,19 +42,27 @@ public class IntAddProblem extends Problem {
 	}
 	
 	public int getWrongAnswer() {
+		
+		/*
 		ErrorType mistake = ErrorType.randomError();
 		switch (mistake) {
 			case NO_CARRY_RESET: return noCarryReset();
 			case SAME_COLUMN_CARRY: return sameColumnCarry();
 			case IGNORE_UNITS_DIGIT: return ignoreUnitsDigit();
-			case ADD_WRONG: /*return addColumnWrong(); */
+			case ADD_WRONG: return addColumnWrong(1);
 			case IGNORE_CARRIES: return ignoreCarries();
 			default: return 0;
 		}
+		*/
+		
+		return 0;
 	}
 
 	/**
-	 * Doesn't ignore last carry
+	 * Generates an incorrect solution to this Problem by ignoring all the carries, except for
+	 * carries that occur in the last column.
+	 * 
+	 * @return an incorrect solution to this Problem
 	 */
 	public int ignoreCarries() {
 		int[] result = new int[first.length + 1];
@@ -66,6 +74,12 @@ public class IntAddProblem extends Problem {
 		return ProblemDescriptor.intFromArray(result);
 	}
 
+	/**
+	 * Generates an incorrect solution to this Problem by performing the addition problem from
+	 * right to left without ever resetting the carry register.
+	 * 
+	 * @return an incorrect solution to this Problem
+	 */
 	public int noCarryReset() {
 		int carriedIn = 0;
 		int[] result = new int[first.length + 1];
@@ -82,19 +96,33 @@ public class IntAddProblem extends Problem {
 		return ProblemDescriptor.intFromArray(result);
 	}
 	
-	// gets last column wrong
+	/**
+	 * Generates an incorrect solution by adding the carry digit into the same column that caused
+	 * the carry (instead of carrying to the next column)
+	 * 
+	 * @return an incorrect solution to this Problem
+	 */
 	public int sameColumnCarry() {
 		return sameColumnCarryGeneral(false);
 	}
 	
-	// gets last column right
+	/**
+	 * Generates an incorrect solution by adding the carry digit into the same column that caused
+	 * the carry (instead of carrying to the next column). The last column is carried correctly.
+	 * 
+	 * @return an incorrect solution to this Problem
+	 */
 	public int sameColumnCarryLastColCorrect() {
 		return sameColumnCarryGeneral(true);
 	}
 	
 	/**
-	 * Adds the carry to the same column it came from
-	 * Does the last (most-sig) column correct
+	 * Generates an incorrect solution by adding the carry digit into the same column that caused
+	 * the carry (instead of carrying to the next column). Whether or not the last column is added
+	 * correctly is determined by lastCorrect.
+	 * 
+	 * @param lastCorrect whether or not the last column should be carried correctly
+	 * @return an incorrect solution to this Problem
 	 */
 	private int sameColumnCarryGeneral(boolean lastCorrect) {
 		int[] result = new int[first.length + 1];
@@ -117,22 +145,32 @@ public class IntAddProblem extends Problem {
 	}
 
 	/**
-	 * any column that has a carry becomes 1 in the column that caused the carry
+	 * Generates an incorrect solution by ignore the units (tens) digit for every carry. In other
+	 * words, every column that would cause a carry becomes a 1 in the solution.
+	 * 
+	 * @return an incorrect solution to this Problem
 	 */
-	private int ignoreUnitsDigit() {
+	public int ignoreUnitsDigit() {
 		int[] result = new int[first.length];
 		for (int i = 0; i < result.length; i++) {
 			int columnSum = first[i] + second[i];
 			if (columnSum >= 10)
 				result[i] = 1;
 			else
-				result[i] = columnSum / 10;
+				result[i] = columnSum;
 		}
 		
 		return ProblemDescriptor.intFromArray(result);
 	}
 
-	
+	/**
+	 * Generates an incorrect solution to this Problem by performing numColsWrongs single digit
+	 * additions incorrectly. Additions will be off by n where n is chosen randomly from 
+	 * -2 <= n <= 2, n != 0, with equal probabilities for each value of n.
+	 * 
+	 * @param numColsWrong the number of columns that should be added incorrectly
+	 * @return an incorrect solution to this Problem
+	 */
 	public int addColumnWrong(int numColsWrong) {
 		int[] result = new int[first.length + 1];
 		Set<Integer> mistakeCols = ProblemDescriptor.chooseIndices(numColsWrong, first.length);
@@ -151,8 +189,11 @@ public class IntAddProblem extends Problem {
 		return ProblemDescriptor.intFromArray(result);
 	}
 	
-	/*
-	 * mangles a number, trying to mimic clerical errors or mistakes in adding two numbers
+	/**
+	 * Obscures a number by randomly adding -2, -1, 1, or 2 to it
+	 * 
+	 * @param n the number to mangle
+	 * @return a number that is at most 2 higher or lower than n
 	 */
 	private static int mangle(int n) {
 		int delta = rand.nextInt(2) + 1;
