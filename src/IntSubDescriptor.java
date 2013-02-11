@@ -29,7 +29,7 @@ public class IntSubDescriptor extends ProblemDescriptor {
 			int[] first = new int[Math.max(numDigits[0], numDigits[1])];
 			int[] second = new int[first.length];
 			int smaller = Math.min(numDigits[0], numDigits[1]);
-			Set<Integer> borrowIndices = chooseIndices(borrows, (first.length - smaller) + 1, second.length);
+			Set<Integer> borrowIndices = chooseIndices(borrows, Math.max(first.length - smaller, 1), second.length);
 			
 			first[0] = DigitGenerator.randomNonZeroDigit();
 			for (int i = 1; i < first.length; i++) {

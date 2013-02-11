@@ -17,8 +17,8 @@ public class Tester {
 		String subProb = 	"{" + 
 								"probType: \"intSub\"," +
 								"description: {" + 
-									"borrows: 1," + 
-									"numDigits: [2,2]," +
+									"borrows: 3," + 
+									"numDigits: [5,5]," +
 									"borrowAccrossZero: false," +
 									"canBeNeg: false" +
 								"}" + 
