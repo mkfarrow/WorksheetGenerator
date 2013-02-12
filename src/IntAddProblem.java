@@ -3,11 +3,9 @@ import java.util.Set;
 
 public class IntAddProblem extends Problem {
 	private static final Random rand = new Random();
-	private int term1;
-	private int term2;
+	private int term1, term2;
 	private int solution;
-	private int[] first;
-	private int[] second;
+	private int[] first, second;
 	
 	
 	private enum ErrorType {

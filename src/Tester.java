@@ -17,7 +17,7 @@ public class Tester {
 		String subProb = 	"{" + 
 								"probType: \"intSub\"," +
 								"description: {" + 
-									"borrows: 3," + 
+									"borrows: 1," + 
 									"numDigits: [5,5]," +
 									"borrowAccrossZero: false," +
 									"canBeNeg: false" +
@@ -38,7 +38,7 @@ public class Tester {
 		ProblemGenerator pg = new ProblemGenerator(description);
 		
 		for (int i = 0; i < 100; i++) {
-			pg.next();
+			System.out.println(pg.next());
 		}
 
 	}
