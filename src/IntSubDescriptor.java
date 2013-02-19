@@ -10,24 +10,24 @@ public class IntSubDescriptor extends ProblemDescriptor {
 	public IntSubDescriptor() { }
 	
 	/**
-	 * currently only generates probs with positive diffs
 	 * 
-	 * I think this works for the most part now
+	 * @throws
+	 * @return
 	 */
 	public Problem makeProblem() {
 		if (numDigits.length != 2)
 			throw new IllegalArgumentException("can only make subtraction probs with two operands");
 		if (Math.max(numDigits[0], numDigits[1]) <= borrows)
 			throw new IllegalArgumentException("too many borrows for the number of digits");
-		
-		if (borrowAcrossZero) {
-			throw new UnsupportedOperationException("borrow across zero not yet implemented");
-			// return makeProbWithAcrossZero()...
-		} else {
-			return noAcrossZero();
-		}
+
+		return borrowAcrossZero ? acrossZero() : noAcrossZero();
 	}
 	
+	/**
+	 * 
+	 * @throws
+	 * @return
+	 */
 	private Problem noAcrossZero() {		
 		int[] first = new int[Math.max(numDigits[0], numDigits[1])];
 		int[] second = new int[first.length];
@@ -58,23 +58,62 @@ public class IntSubDescriptor extends ProblemDescriptor {
 		return new IntSubProblem(intFromArray(first), intFromArray(second));
 	}
 	
+	/**
+	 * 
+	 * @throws
+	 * @return
+	 */
 	private Problem acrossZero() {
 		if (borrows == 0)
 			throw new IllegalArgumentException("borrowAcrossZero is true, but borrows is 0");
+		int larger = Math.max(numDigits[0], numDigits[1]);
+		if (larger < 3)
+			throw new IllegalArgumentException("cannot perform borrows across zero with less than 3 digits");
 		
-		int[] first = new int[Math.max(numDigits[0], numDigits[1])];
+		int[] first = new int[larger];
 		int[] second = new int[first.length];
 		int smaller = Math.min(numDigits[0], numDigits[1]);
 		
-		int borrowsAcross = DigitGenerator.inRange(1, borrows);
-		int borrowsLeft = borrows - borrowsAcross;
-		
+		int starter = DigitGenerator.inRange(Math.max(first.length - smaller, 2), second.length);
+		int end = DigitGenerator.inRange(1, starter);
 		first[0] = DigitGenerator.randomNonZeroDigit();
-		for (int i = 1; i < borrowsAcross; i++)
-			;
+
+		for (int i = 1; i < first.length; i++) {
+			if (i == starter)
+				first[i] = DigitGenerator.inRange(1, 9);
+			else if (i < starter && i >= end)
+				first[i] = 0;
+			else
+				first[i] = DigitGenerator.inRange(1, 9);
+		}
 		
+		for (int i = 1; i <= smaller; i++) {
+			if (i == starter)
+				second[second.length - i] = DigitGenerator.withBorrow(first[first.length - i]);
+			else if (i < starter && i >= end)
+				second[second.length - i] = DigitGenerator.randomNonZeroDigit();
+			else if (end == second.length - i + 1)
+				second[second.length - i] = DigitGenerator.noBorrow(first[first.length - i] - 1);
+			else
+				second[second.length - i] = DigitGenerator.noBorrow(first[first.length - i]);
+		}
 		
-		return null;
+		/*
+		char[] marker = new char[larger];
+		for (int i = 0; i < larger; i++)
+			if (i == starter)
+				marker[i] = '$';
+			else if (i == end)
+				marker[i] = '$';
+			else
+				marker[i] = 'x';
+		
+		System.out.println(Arrays.toString(marker));
+		System.out.println(Arrays.toString(first));
+		System.out.println(Arrays.toString(second));
+		*/
+		
+		return new IntSubProblem(intFromArray(first), intFromArray(second));
 	}
 	
 	
