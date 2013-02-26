@@ -51,5 +51,37 @@ public class IntSubProblem extends Problem {
 	public String toString() {
 		return term1 + " - " + term2 + " = " + solution;
 	}
+	
+	
+	public String toMathML(String id) {
+		StringBuilder result = new StringBuilder();
+		
+		if (id == null)
+			result.append("<math>");
+		else
+			result.append("<math id=" + id + ">");
+		
+		result.append("<mstack>");
+		
+		result.append("<mn>");
+		result.append(term1);
+		result.append("</mn>");
+		
+		result.append("<msrow>");
+		result.append("<mo>-</mo><none/>");
+		
+		result.append("<mn>");
+		result.append(term2);
+		result.append("</mn>");
+		
+		result.append("</msrow>");
+		
+		result.append("<msline/>");
+		result.append("</mstack>");
+		
+		result.append("</math>");
+		
+		return result.toString();
+	}
 
 }

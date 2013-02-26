@@ -8,9 +8,10 @@ public class Tester {
 	public static void main(String[] args) {
 		String addProb = 	"{" + 
 								"probType: \"intAdd\"," + 
-								"description: {" + 
-									"numCarries: 3," + 
-									"numDigits: 5" + 
+								"description: {" +
+									"hasCarry: true," + 
+									"numDigits: 3," + 
+									"numTerms: 3" + 
 								"}" + 
 							"}";
 
@@ -32,17 +33,32 @@ public class Tester {
 							"}";
 
 		
+		
 		JsonParser parser = new JsonParser();
-		JsonObject description = parser.parse(subProb).getAsJsonObject();
+		JsonObject description = parser.parse(addProb).getAsJsonObject();
 		ProblemGenerator pg = new ProblemGenerator(description);
 		
 		for (int i = 0; i < 100; i++) {
-			IntSubProblem prob = (IntSubProblem) pg.next();
+			IntAddProblem prob = (IntAddProblem) pg.next();
 			System.out.println(prob);
-			System.out.println(prob.noDecrementOnBorrow());
+			System.out.println(prob.addColumnWrong(0));
+			//System.out.println(prob.noDecrementOnBorrow());
 			System.out.println();
 		}
-
+		
+		
+		/*
+		int[] avg = new int[10];
+		IntAddDescriptor d = new IntAddDescriptor();
+		for (int i = 0; i < 50000; i++) {
+			int[] curr = d.numsWithSumLessThan10(6);
+			int sum = 0;
+			for (int j = 0; j < curr.length; j++)
+				avg[curr[j]]++;
+			
+		}
+		System.out.println(Arrays.toString(avg));
+		*/
 	}
 	
 	private int[] arrayFromInt(int num, int numDig) {

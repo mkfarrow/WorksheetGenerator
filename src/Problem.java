@@ -1,6 +1,11 @@
 public abstract class Problem {
 
 	public abstract int getWrongAnswer();
+	public abstract String toMathML(String id);
+	
+	public String toMathML() {
+		return toMathML(null);
+	}
 	
 	static int[] arrayFromInt(int num, int numDig) {
 		String data = "" + num;
@@ -11,4 +16,5 @@ public abstract class Problem {
 			result[i] = data.charAt(i) - '0';
 		return result;
 	}
+	
 }

@@ -1,12 +1,42 @@
+import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Random;
 import java.util.Set;
 
 public class IntAddProblem extends Problem {
 	private static final Random rand = new Random();
-	private int term1, term2;
 	private int solution;
-	private int[] first, second;
+	List<Integer> terms;
+	List<int[]> termsArrays;
+	int maxLength;
 	
+	public IntAddProblem(List<Integer> nums) {
+		terms = new ArrayList<Integer>(nums);
+		termsArrays = new ArrayList<int[]>();
+		
+		// find the max length and calculate the solution
+		int maxLength = 0;
+		for (int i = 0; i < terms.size(); i++) {
+			maxLength = Math.max(maxLength, (terms.get(i) + "").length());
+			solution += terms.get(i);
+		}
+		
+		this.maxLength = maxLength;
+		
+		for (int i = 0; i < terms.size(); i++)
+			termsArrays.add(arrayFromInt(terms.get(i), maxLength));
+	}
+	
+	public int getSolution() {
+		return solution;
+	}
+	
+	public int getTerm(int n) {
+		if (n >= terms.size() || n < 0)
+			throw new IllegalArgumentException();
+		return terms.get(n);
+	}
 	
 	private enum ErrorType {
 		NO_CARRY_RESET, SAME_COLUMN_CARRY, IGNORE_CARRIES, IGNORE_UNITS_DIGIT, ADD_WRONG;
@@ -17,43 +47,27 @@ public class IntAddProblem extends Problem {
 		}
 	}
 	
-	public IntAddProblem(int t1, int t2) {
-		term1 = t1;
-		term2 = t2;
-		solution = term1 + term2;
-		
-		int length = Math.max(("" + term1).length(), ("" + term2).length());
-		first = arrayFromInt(term1, length);
-		second = arrayFromInt(term2, length);
-	}
-	
-	public int getSolution() {
-		return solution;
-	}
-	
-	public int getTerm1() {
-		return term1;
-	}
-	
-	public int getTerm2() {
-		return term2;
-	}
-	
 	public int getWrongAnswer() {
-		
-		/*
 		ErrorType mistake = ErrorType.randomError();
 		switch (mistake) {
 			case NO_CARRY_RESET: return noCarryReset();
 			case SAME_COLUMN_CARRY: return sameColumnCarry();
 			case IGNORE_UNITS_DIGIT: return ignoreUnitsDigit();
-			case ADD_WRONG: return addColumnWrong(1);
+			case ADD_WRONG: return addColumnWrong(DigitGenerator.inRange(1, maxLength + 1));
 			case IGNORE_CARRIES: return ignoreCarries();
 			default: return 0;
 		}
-		*/
-		
-		return 0;
+	}
+	
+	public int[] getNWrongAnswers(int n) {
+		return null;
+	}
+	
+	private int[] listToArray(List<Integer> list) {
+		int[] res = new int[list.size()];
+		for (int i = 0; i < list.size(); i++)
+			res[i] = list.get(i);
+		return res;
 	}
 
 	/**
@@ -63,13 +77,24 @@ public class IntAddProblem extends Problem {
 	 * @return an incorrect solution to this Problem
 	 */
 	public int ignoreCarries() {
-		int[] result = new int[first.length + 1];
-		for (int i = 1; i < result.length; i++)
-			result[result.length - i] = (first[first.length - i] + second[second.length - i]) % 10;
-		if (first[0] + second[0] > 10)
-			result[0] = 1;
+		List<Integer> result = new LinkedList<Integer>(); // because we'll add to the front a lot.
+		
+		int columnSum = 0;
+		for (int row = 1; row <= maxLength; row++) {
+			columnSum = 0;
+			for (int col = 0; col < termsArrays.size(); col++) {
+				columnSum += termsArrays.get(col)[maxLength - row];
+			}
+			result.add(0, columnSum % 10);
+		}
+		
+		columnSum /= 10;
+		while (columnSum > 0) {
+			result.add(0, columnSum % 10);
+			columnSum /= 10;
+		}
 	
-		return ProblemDescriptor.intFromArray(result);
+		return ProblemDescriptor.intFromArray(listToArray(result));
 	}
 
 	/**
@@ -79,19 +104,27 @@ public class IntAddProblem extends Problem {
 	 * @return an incorrect solution to this Problem
 	 */
 	public int noCarryReset() {
+		List<Integer> result = new LinkedList<Integer>();
 		int carriedIn = 0;
-		int[] result = new int[first.length + 1];
 		
 		int columnSum = 0;
-		for (int i = 1; i < result.length; i++) {
-			columnSum = first[first.length - i] + second[second.length - i] + carriedIn;
-			if (columnSum >= 10)
-				carriedIn++;
-			result[result.length - i] = columnSum % 10;
+		for (int row = 1; row <= maxLength; row++) {
+			columnSum = carriedIn;
+			for (int col = 0; col < termsArrays.size(); col++) {
+				columnSum += termsArrays.get(col)[maxLength - row];
+			}
+			carriedIn += columnSum / 10;
+			
+			result.add(0, columnSum % 10);
 		}
-		result[0] = columnSum / 10;
 		
-		return ProblemDescriptor.intFromArray(result);
+		columnSum /= 10;
+		while (columnSum > 0) {
+			result.add(0, columnSum % 10);
+			columnSum /= 10;
+		}
+				
+		return ProblemDescriptor.intFromArray(listToArray(result));
 	}
 	
 	/**
@@ -122,24 +155,43 @@ public class IntAddProblem extends Problem {
 	 * @param lastCorrect whether or not the last column should be carried correctly
 	 * @return an incorrect solution to this Problem
 	 */
-	private int sameColumnCarryGeneral(boolean lastCorrect) {
-		int[] result = new int[first.length + 1];
+	int sameColumnCarryGeneral(boolean lastCorrect) {
+		List<Integer> result = new LinkedList<Integer>();
+		int carriedIn = 0;
+		
 		int columnSum = 0;
-		for (int i = 1; i < result.length - 1; i++) {
-			columnSum = first[first.length - i] + second[second.length - i];
-			result[result.length - i] = (columnSum / 10) + (columnSum % 10);
+		for (int row = 1; row < maxLength; row++) {
+			columnSum = 0;
+			for (int col = 0; col < termsArrays.size(); col++) {
+				columnSum += termsArrays.get(col)[maxLength - row];
+			}
+			carriedIn = columnSum / 10;
+			
+			result.add(0, columnSum % 10 + carriedIn);
+		}
+		
+		columnSum = 0;
+		for (int col = 0; col < termsArrays.size(); col++) {
+			columnSum += termsArrays.get(col)[0];
 		}
 		
 		if (lastCorrect) {
-			columnSum = first[0] + second[0];
-			result[1] = columnSum % 10;
-			result[0] = columnSum / 10;
+			
+			while (columnSum > 0) {
+				result.add(0, columnSum % 10);
+				columnSum /= 10;
+			}
 		} else {
-			columnSum = first[0] + second[0];
-			result[1] = (columnSum / 10) + (columnSum % 10);
+			int digitSum = 0;
+			while (columnSum > 0) {
+				digitSum += columnSum % 10;
+				columnSum /= 10;
+			}
+			result.add(0, digitSum);
 		}
 		
-		return ProblemDescriptor.intFromArray(result);
+
+		return ProblemDescriptor.intFromArray(listToArray(result));
 	}
 
 	/**
@@ -149,16 +201,27 @@ public class IntAddProblem extends Problem {
 	 * @return an incorrect solution to this Problem
 	 */
 	public int ignoreUnitsDigit() {
-		int[] result = new int[first.length];
-		for (int i = 0; i < result.length; i++) {
-			int columnSum = first[i] + second[i];
-			if (columnSum >= 10)
-				result[i] = 1;
-			else
-				result[i] = columnSum;
+		List<Integer> result = new LinkedList<Integer>();
+		int carriedIn = 0;
+		
+		int columnSum = 0;
+		for (int row = 1; row <= maxLength; row++) {
+			columnSum = carriedIn;
+			for (int col = 0; col < termsArrays.size(); col++) {
+				columnSum += termsArrays.get(col)[maxLength - row];
+			}
+			carriedIn = columnSum / 10;
+			
+			result.add(0, columnSum % 10);
 		}
 		
-		return ProblemDescriptor.intFromArray(result);
+		columnSum /= 10;
+		while (columnSum > 0) {
+			result.add(0, columnSum % 10);
+			columnSum /= 10;
+		}
+				
+		return ProblemDescriptor.intFromArray(listToArray(result));
 	}
 
 	/**
@@ -170,21 +233,32 @@ public class IntAddProblem extends Problem {
 	 * @return an incorrect solution to this Problem
 	 */
 	public int addColumnWrong(int numColsWrong) {
-		int[] result = new int[first.length + 1];
-		Set<Integer> mistakeCols = ProblemDescriptor.chooseIndices(numColsWrong, first.length);
+		numColsWrong = Math.min(numColsWrong, maxLength);
+		
+		List<Integer> result = new LinkedList<Integer>();
+		Set<Integer> mistakeCols = ProblemDescriptor.chooseIndices(numColsWrong, maxLength);
 		
 		int carriedIn = 0;
 		int columnSum = 0;
-		for (int i = 1; i < result.length; i++) {
-			columnSum = first[first.length - i] + second[second.length - i] + carriedIn;
-			if (mistakeCols.contains(first.length - i))
-				columnSum = mangle(columnSum);
+		for (int row = 1; row <= maxLength; row++) {
+			columnSum = carriedIn;
+			for (int col = 0; col < termsArrays.size(); col++) {
+				columnSum += termsArrays.get(col)[maxLength - row];
+			}
 			carriedIn = columnSum / 10;
-			result[result.length - i] = columnSum % 10;
+			
+			if (mistakeCols.contains(maxLength - row))
+				columnSum = mangle(columnSum);
+			result.add(0, columnSum % 10);
 		}
-		result[0] = carriedIn;
 		
-		return ProblemDescriptor.intFromArray(result);
+		columnSum /= 10;
+		while (columnSum > 0) {
+			result.add(0, columnSum % 10);
+			columnSum /= 10;
+		}
+		
+		return ProblemDescriptor.intFromArray(listToArray(result));
 	}
 	
 	/**
@@ -200,5 +274,44 @@ public class IntAddProblem extends Problem {
 		else
 			n -= delta;
 		return n;
+	}
+	
+	public String toMathML(String id) {
+		StringBuilder result = new StringBuilder();
+		
+		if (id == null)
+			result.append("<math>");
+		else
+			result.append("<math id=" + id + ">");
+		
+		result.append("<mstack>");
+		
+		for (int i = 0; i < terms.size() - 1; i++) {
+			result.append("<mn>").append(terms.get(i)).append("</mn>");
+		}
+		
+		result.append("<msrow>");
+		result.append("<mo>+</mo><none/>");
+		result.append("<mn>").append(terms.get(terms.size() - 1)).append("</mn>");
+		
+		result.append("</msrow>");
+		result.append("<msline/>");
+		result.append("</mstack>");
+		
+		result.append("</math>");
+		
+		return result.toString();
+	}
+	
+	public String toString() {
+		String result ="";
+		for (int i = 0; i < terms.size(); i++) {
+			int sp = 3 - (terms.get(i) + "").length();
+			for (int j = 0; j < sp; j++)
+				result += " ";
+			result += (terms.get(i) + "\n");
+		}
+		result += "---\n" + solution;
+		return result;
 	}
 }
