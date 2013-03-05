@@ -1,11 +1,8 @@
 public abstract class Problem {
 
 	public abstract int getWrongAnswer();
-	public abstract String toMathML(String id);
 	
-	public String toMathML() {
-		return toMathML(null);
-	}
+	public abstract String toHTML();
 	
 	static int[] arrayFromInt(int num, int numDig) {
 		String data = "" + num;

@@ -38,12 +38,12 @@ public class Tester {
 		JsonObject description = parser.parse(addProb).getAsJsonObject();
 		ProblemGenerator pg = new ProblemGenerator(description);
 		
-		for (int i = 0; i < 100; i++) {
+		for (int i = 0; i < 2; i++) {
 			IntAddProblem prob = (IntAddProblem) pg.next();
-			System.out.println(prob);
-			System.out.println(prob.addColumnWrong(0));
+			//System.out.println(prob);
+			//System.out.println(prob.addColumnWrong(0));
 			//System.out.println(prob.noDecrementOnBorrow());
-			System.out.println();
+			System.out.println(prob.toHTML());
 		}
 		
 		

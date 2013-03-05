@@ -1,3 +1,6 @@
+import java.util.ArrayList;
+import java.util.List;
+
 public class IntSubProblem extends Problem {
 	private int term1, term2;
 	private int solution;
@@ -52,6 +55,44 @@ public class IntSubProblem extends Problem {
 		return term1 + " - " + term2 + " = " + solution;
 	}
 	
+	
+	public String toHTML() {
+		List<int[]> termsArrays = new ArrayList<int[]>();
+		termsArrays.add(first);
+		termsArrays.add(second);
+		StringBuilder sb = new StringBuilder();
+		
+		sb.append("<div><table class=\"problem\">");
+		
+		for (int i = 0; i < termsArrays.size(); i++) {
+			int[] curr = termsArrays.get(i);
+			sb.append("<tr>");
+			sb.append("<td>");
+			if (i == termsArrays.size() - 1)
+				sb.append("-");
+			sb.append("</td>");
+			
+			boolean seenNonZero = false;
+			for (int j = 0; j < curr.length; j++) {
+				
+				sb.append("<td>");
+				if (curr[j] != 0)
+					seenNonZero = true;
+				
+				if (seenNonZero)
+					sb.append(curr[j]);
+				
+				sb.append("</td>");
+				
+			}
+			sb.append("</tr>");
+		}
+		
+		
+		sb.append("</table></div>");
+		return sb.toString();
+		
+	}
 	
 	public String toMathML(String id) {
 		StringBuilder result = new StringBuilder();

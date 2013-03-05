@@ -1,4 +1,5 @@
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Random;
@@ -60,7 +61,16 @@ public class IntAddProblem extends Problem {
 	}
 	
 	public int[] getNWrongAnswers(int n) {
-		return null;
+		Set<Integer> set = new HashSet<Integer>();
+		while (set.size() < n)
+			set.add(getWrongAnswer());
+		
+		int[] result = new int[n];
+		int i = 0;
+		for (int ans : set)
+			result[i++] = ans;
+		
+		return result;
 	}
 	
 	private int[] listToArray(List<Integer> list) {
@@ -276,33 +286,41 @@ public class IntAddProblem extends Problem {
 		return n;
 	}
 	
-	public String toMathML(String id) {
-		StringBuilder result = new StringBuilder();
+	public String toHTML() {
+		StringBuilder sb = new StringBuilder();
 		
-		if (id == null)
-			result.append("<math>");
-		else
-			result.append("<math id=" + id + ">");
+		sb.append("<div><table class=\"problem\">");
 		
-		result.append("<mstack>");
-		
-		for (int i = 0; i < terms.size() - 1; i++) {
-			result.append("<mn>").append(terms.get(i)).append("</mn>");
+		for (int i = 0; i < termsArrays.size(); i++) {
+			int[] curr = termsArrays.get(i);
+			sb.append("<tr>");
+			sb.append("<td>");
+			if (i == termsArrays.size() - 1)
+				sb.append("+");
+			sb.append("</td>");
+			
+			boolean seenNonZero = false;
+			for (int j = 0; j < curr.length; j++) {
+				
+				sb.append("<td>");
+				if (curr[j] != 0)
+					seenNonZero = true;
+				
+				if (seenNonZero)
+					sb.append(curr[j]);
+				
+				sb.append("</td>");
+				
+			}
+			sb.append("</tr>");
 		}
 		
-		result.append("<msrow>");
-		result.append("<mo>+</mo><none/>");
-		result.append("<mn>").append(terms.get(terms.size() - 1)).append("</mn>");
 		
-		result.append("</msrow>");
-		result.append("<msline/>");
-		result.append("</mstack>");
+		sb.append("</table></div>");
+		return sb.toString();
 		
-		result.append("</math>");
-		
-		return result.toString();
 	}
-	
+
 	public String toString() {
 		String result ="";
 		for (int i = 0; i < terms.size(); i++) {
