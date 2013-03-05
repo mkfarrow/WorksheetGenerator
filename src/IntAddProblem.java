@@ -1,4 +1,5 @@
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -54,22 +55,29 @@ public class IntAddProblem extends Problem {
 			case NO_CARRY_RESET: return noCarryReset();
 			case SAME_COLUMN_CARRY: return sameColumnCarry();
 			case IGNORE_UNITS_DIGIT: return ignoreUnitsDigit();
-			case ADD_WRONG: return addColumnWrong(DigitGenerator.inRange(1, maxLength + 1));
+			case ADD_WRONG: return addColumnWrong(DigitGenerator.inRange(1, maxLength));
 			case IGNORE_CARRIES: return ignoreCarries();
 			default: return 0;
 		}
 	}
 	
-	public int[] getNWrongAnswers(int n) {
+	public int[] getFourChoices() {
 		Set<Integer> set = new HashSet<Integer>();
-		while (set.size() < n)
+		while (set.size() < 3)
 			set.add(getWrongAnswer());
 		
-		int[] result = new int[n];
+		List<Integer> list = new ArrayList<Integer>();
 		int i = 0;
 		for (int ans : set)
-			result[i++] = ans;
+			list.add(ans);
+		list.add(solution);
 		
+		Collections.shuffle(list);
+		
+		int[] result = new int[4];
+		i = 0;
+		for (int ans : list)
+			result[i++] = ans;
 		return result;
 	}
 	
@@ -283,7 +291,7 @@ public class IntAddProblem extends Problem {
 			n += delta;
 		else
 			n -= delta;
-		return n;
+		return Math.max(n,0);
 	}
 	
 	public String toHTML() {

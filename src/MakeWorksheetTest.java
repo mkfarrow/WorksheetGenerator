@@ -3,7 +3,9 @@ import java.io.IOException;
 import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -44,24 +46,24 @@ public class MakeWorksheetTest {
 	private static String[] problemJSONs = {addProbWithCarry, addProbNoCarry, addProb};
 	
 	public static void main(String[] args) throws IOException {
-		List<Problem> problemList = new ArrayList<Problem>();
+		
+		Map<Problem, int[]> probsAndChoices = new HashMap<Problem, int[]>();
+		
 		JsonParser parser = new JsonParser();
 		
 		for (String probJSON : problemJSONs) {
 			JsonObject description = parser.parse(probJSON).getAsJsonObject();
 			ProblemGenerator pg = new ProblemGenerator(description);
 			for (int i = 0; i < 5; i++) {
-				problemList.add(pg.next());
+				IntAddProblem p = (IntAddProblem) pg.next();
+				probsAndChoices.put(p, p.getFourChoices());
 			}
 		}
-		
-		Collections.shuffle(problemList);
 
-		
 		// get a huge string of HTML for all the problems
 		StringBuilder sb = new StringBuilder();
-		for (int i = 0; i < problemList.size(); i++) {
-			sb.append(problemList.get(i).toHTML());
+		for (Problem p : probsAndChoices.keySet()) {
+			sb.append(p.toHTML());
 		}
 		
 		// parse the actual template and grab the innerHTML of the div that
@@ -74,7 +76,7 @@ public class MakeWorksheetTest {
 		divForProblems.append(sb.toString());
 		
 		// write all the html out to a file
-		File outFile = new File("src/pages/example.html");
+		File outFile = new File("src/pages/example2.html");
 		PrintStream out = new PrintStream(outFile);
 		
 		out.println(template.html());
