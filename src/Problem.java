@@ -1,6 +1,10 @@
+import java.util.Arrays;
+import java.util.Comparator;
+import java.util.Map;
+
 public abstract class Problem {
 
-	public abstract int getWrongAnswer();
+	public abstract Response getWrongAnswer();
 	
 	public abstract String toHTML();
 	
@@ -13,5 +17,35 @@ public abstract class Problem {
 			result[i] = data.charAt(i) - '0';
 		return result;
 	}
+	
+	/**
+	 * Encapsulates information about a response on a multiple choice worksheet
+	 *
+	 * @param <K> the type of the answer
+	 */
+	public class Response<K> implements Map.Entry<K, String> {
+		private K answer;
+		private String explanation;
+		
+		
+		public Response(K a, String e) {
+			answer = a;
+			explanation = e;
+		}
+		
+		public K getKey() {
+			return answer;
+		}
+
+		public String getValue() {
+			return explanation;
+		}
+
+		public String setValue(String explanation) {
+			String res = this.explanation;
+			this.explanation = explanation;
+			return res;
+		}
+	}	
 	
 }

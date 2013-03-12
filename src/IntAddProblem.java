@@ -1,10 +1,13 @@
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Random;
 import java.util.Set;
+import java.util.TreeSet;
+
 
 public class IntAddProblem extends Problem {
 	private static final Random rand = new Random();
@@ -41,44 +44,58 @@ public class IntAddProblem extends Problem {
 	}
 	
 	private enum ErrorType {
-		NO_CARRY_RESET, SAME_COLUMN_CARRY, IGNORE_CARRIES, IGNORE_UNITS_DIGIT, ADD_WRONG;
-
+		NO_CARRY_RESET		("student didn't reset the carry digit"), 
+		SAME_COLUMN_CARRY 	("student added carries back into the same column"), 
+		IGNORE_CARRIES		("student ignored all carries"), 
+		IGNORE_UNITS_DIGIT	("student ignored the units digits"), 
+		ADD_WRONG			("student probably carried correctly but made a mistake adding a column");
+		
+		String message;
+		ErrorType(String m) {
+			message = m;
+		}
+		
 		public static ErrorType randomError() {
 			ErrorType[] values = ErrorType.values();
 			return values[DigitGenerator.inRange(0, values.length)];
 		}
 	}
 	
-	public int getWrongAnswer() {
+	public Response<Integer> getWrongAnswer() {
 		ErrorType mistake = ErrorType.randomError();
 		switch (mistake) {
-			case NO_CARRY_RESET: return noCarryReset();
-			case SAME_COLUMN_CARRY: return sameColumnCarry();
-			case IGNORE_UNITS_DIGIT: return ignoreUnitsDigit();
-			case ADD_WRONG: return addColumnWrong(DigitGenerator.inRange(1, maxLength));
-			case IGNORE_CARRIES: return ignoreCarries();
-			default: return 0;
+			case NO_CARRY_RESET: return new Response<Integer>(noCarryReset(), ErrorType.NO_CARRY_RESET.message);
+			case SAME_COLUMN_CARRY: return new Response<Integer>(sameColumnCarry(), ErrorType.SAME_COLUMN_CARRY.message);
+			case IGNORE_UNITS_DIGIT: return new Response<Integer>(ignoreUnitsDigit(), ErrorType.NO_CARRY_RESET.message);
+			case ADD_WRONG: return new Response<Integer>(addColumnWrong(DigitGenerator.inRange(1, maxLength)), ErrorType.NO_CARRY_RESET.message);
+			case IGNORE_CARRIES: return new Response<Integer>(ignoreCarries(), ErrorType.NO_CARRY_RESET.message);
+			default: return null;
 		}
 	}
 	
-	public int[] getFourChoices() {
-		Set<Integer> set = new HashSet<Integer>();
-		while (set.size() < 3)
-			set.add(getWrongAnswer());
+	public List<Response<Integer>> getFourChoices() {
+		Set<Response<Integer>> set = new TreeSet<Response<Integer>>(new Comparator<Response<Integer>>() {
+					public int compare(Response<Integer> a, Response<Integer> b) {
+						return a.getKey() - b.getKey();
+					}
+				});
+		while (set.size() < 3) {
+			Response<Integer> r = getWrongAnswer();
+
+			if (r.getKey() != solution) 
+				set.add(r);
+						
+		}
 		
-		List<Integer> list = new ArrayList<Integer>();
+		List<Response<Integer>> list = new ArrayList<Response<Integer>>();
 		int i = 0;
-		for (int ans : set)
+		for (Response<Integer> ans : set)
 			list.add(ans);
-		list.add(solution);
+		list.add(new Response<Integer>(solution, "correct"));
 		
 		Collections.shuffle(list);
 		
-		int[] result = new int[4];
-		i = 0;
-		for (int ans : list)
-			result[i++] = ans;
-		return result;
+		return list;
 	}
 	
 	private int[] listToArray(List<Integer> list) {
