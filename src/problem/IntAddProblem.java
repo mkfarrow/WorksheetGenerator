@@ -1,3 +1,5 @@
+package problem;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -8,13 +10,21 @@ import java.util.Random;
 import java.util.Set;
 import java.util.TreeSet;
 
+import descriptor.ProblemDescriptor;
+import digit.DigitGenerator;
 
+/**
+ * Encapsulates an integer addition problem with any number of terms.
+ * 
+ * @author Mikey Farrow
+ *
+ */
 public class IntAddProblem extends Problem {
 	private static final Random rand = new Random();
 	private int solution;
-	List<Integer> terms;
-	List<int[]> termsArrays;
-	int maxLength;
+	private List<Integer> terms;
+	private List<int[]> termsArrays;
+	private int maxLength;
 	
 	public IntAddProblem(List<Integer> nums) {
 		terms = new ArrayList<Integer>(nums);
@@ -33,16 +43,32 @@ public class IntAddProblem extends Problem {
 			termsArrays.add(arrayFromInt(terms.get(i), maxLength));
 	}
 	
+	/**
+	 * Returns the answer to this Problem
+	 * 
+	 * @return the solution to this Problem as an int
+	 */
 	public int getSolution() {
 		return solution;
 	}
 	
+	/**
+	 * Returns the nth term of this Problem
+	 * 
+	 * @param n the index of the term to get (0 is first)
+	 * @throws IllegalArgumentException if there is no nth term
+	 */
 	public int getTerm(int n) {
 		if (n >= terms.size() || n < 0)
 			throw new IllegalArgumentException();
 		return terms.get(n);
 	}
 	
+	/**
+	 * This is a way of doing some bookkeeping regarding what error was made in order to produce a
+	 * wrong solution. This enum type keeps track of all the possible types of errors that are
+	 * generated and a String that describes the mistake.
+	 */
 	private enum ErrorType {
 		NO_CARRY_RESET		("student didn't reset the carry digit"), 
 		SAME_COLUMN_CARRY 	("student added carries back into the same column"), 
@@ -55,36 +81,59 @@ public class IntAddProblem extends Problem {
 			message = m;
 		}
 		
+		/**
+		 * Chooses a random member of this enum type and returns it
+		 * 
+		 * @return a random type of error of type ErrorType
+		 */
 		public static ErrorType randomError() {
 			ErrorType[] values = ErrorType.values();
 			return values[DigitGenerator.inRange(0, values.length)];
 		}
 	}
 	
+	/**
+	 * Returns a Response (see problem.Response) that encapsulates an incorrect answer to this
+	 * Problem by choosing a random mistake to make and then calculating an answer using that
+	 * mistake
+	 */
 	public Response<Integer> getWrongAnswer() {
 		ErrorType mistake = ErrorType.randomError();
 		switch (mistake) {
-			case NO_CARRY_RESET: return new Response<Integer>(noCarryReset(), ErrorType.NO_CARRY_RESET.message);
-			case SAME_COLUMN_CARRY: return new Response<Integer>(sameColumnCarry(), ErrorType.SAME_COLUMN_CARRY.message);
-			case IGNORE_UNITS_DIGIT: return new Response<Integer>(ignoreUnitsDigit(), ErrorType.NO_CARRY_RESET.message);
-			case ADD_WRONG: return new Response<Integer>(addColumnWrong(DigitGenerator.inRange(1, maxLength)), ErrorType.NO_CARRY_RESET.message);
-			case IGNORE_CARRIES: return new Response<Integer>(ignoreCarries(), ErrorType.NO_CARRY_RESET.message);
+			case NO_CARRY_RESET: 
+				return new Response<Integer>(noCarryReset(), ErrorType.NO_CARRY_RESET.message);
+			case SAME_COLUMN_CARRY: 
+				return new Response<Integer>(sameColumnCarry(), 
+							ErrorType.SAME_COLUMN_CARRY.message);
+			case IGNORE_UNITS_DIGIT: 
+				return new Response<Integer>(ignoreUnitsDigit(), ErrorType.NO_CARRY_RESET.message);
+			case ADD_WRONG: 
+				return new Response<Integer>(addColumnWrong(DigitGenerator.inRange(1, maxLength)),
+																ErrorType.NO_CARRY_RESET.message);
+			case IGNORE_CARRIES: 
+				return new Response<Integer>(ignoreCarries(), ErrorType.NO_CARRY_RESET.message);
+			
 			default: return null;
 		}
 	}
 	
+	/**
+	 * Returns a list of incorrect solutions to this Problem as Response<Integer>
+	 * 
+	 * @returns a List of four incorrect solutions to this Problem
+	 */
 	public List<Response<Integer>> getFourChoices() {
 		Set<Response<Integer>> set = new TreeSet<Response<Integer>>(new Comparator<Response<Integer>>() {
 					public int compare(Response<Integer> a, Response<Integer> b) {
 						return a.getKey() - b.getKey();
 					}
 				});
+		
 		while (set.size() < 3) {
 			Response<Integer> r = getWrongAnswer();
 
 			if (r.getKey() != solution) 
-				set.add(r);
-						
+				set.add(r);				
 		}
 		
 		List<Response<Integer>> list = new ArrayList<Response<Integer>>();
@@ -98,6 +147,12 @@ public class IntAddProblem extends Problem {
 		return list;
 	}
 	
+	/**
+	 * Converts a list to an array
+	 * 
+	 * @param list
+	 * @return an array form of list
+	 */
 	private int[] listToArray(List<Integer> list) {
 		int[] res = new int[list.size()];
 		for (int i = 0; i < list.size(); i++)

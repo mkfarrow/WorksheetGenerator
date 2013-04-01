@@ -1,6 +1,17 @@
+package descriptor;
+
 import java.util.Arrays;
 import java.util.Set;
 
+import digit.DigitGenerator;
+
+import problem.IntSubProblem;
+import problem.Problem;
+
+/**
+ * This only works for problems with two operands, but otherwise it is analogous to 
+ * IntAddDescriptor but for subtraction problems.
+ */
 public class IntSubDescriptor extends ProblemDescriptor {
 	int borrows;
 	int[] numDigits;
@@ -10,9 +21,7 @@ public class IntSubDescriptor extends ProblemDescriptor {
 	public IntSubDescriptor() { }
 	
 	/**
-	 * 
-	 * @throws
-	 * @return
+	 * @see ProblemDescriptor#makeProblem()
 	 */
 	public Problem makeProblem() {
 		if (numDigits.length != 2)
@@ -24,9 +33,10 @@ public class IntSubDescriptor extends ProblemDescriptor {
 	}
 	
 	/**
+	 * Makes a Problem that satisfies the description in the case that there are no borrows across
+	 * zero.
 	 * 
-	 * @throws
-	 * @return
+	 * @return a Problem fitting the description of this IntSubDescriptor
 	 */
 	private Problem noAcrossZero() {		
 		int[] first = new int[Math.max(numDigits[0], numDigits[1])];
@@ -59,9 +69,12 @@ public class IntSubDescriptor extends ProblemDescriptor {
 	}
 	
 	/**
+	 * Makes a Problem that satisfies the description in the case that there are borrows across
+	 * zero.
 	 * 
-	 * @throws
-	 * @return
+	 * @throws 	IllegalArgumentException if borrowAcrossZero is true but borrows is 0 or if there is
+	 * 			a borrow across zero requested and there are less than 3 digits in the problem description
+	 * @return a Problem fitting the description of this IntSubDescriptor
 	 */
 	private Problem acrossZero() {
 		if (borrows == 0)
@@ -98,20 +111,6 @@ public class IntSubDescriptor extends ProblemDescriptor {
 				second[second.length - i] = DigitGenerator.noBorrow(first[first.length - i]);
 		}
 		
-		/*
-		char[] marker = new char[larger];
-		for (int i = 0; i < larger; i++)
-			if (i == starter)
-				marker[i] = '$';
-			else if (i == end)
-				marker[i] = '$';
-			else
-				marker[i] = 'x';
-		
-		System.out.println(Arrays.toString(marker));
-		System.out.println(Arrays.toString(first));
-		System.out.println(Arrays.toString(second));
-		*/
 		
 		return new IntSubProblem(intFromArray(first), intFromArray(second));
 	}

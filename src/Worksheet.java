@@ -9,18 +9,43 @@ import org.jsoup.*;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 
+import problem.IntAddProblem;
+import problem.Problem;
+import problem.Response;
+import problem.*;
 
+/**
+ * Encapsulates information vital to a multiple choice math worksheet where each question is
+ * associated with four responses, one of which is correct.
+ * 
+ * @author Mikey Farrow
+ *
+ */
 public class Worksheet {
-	private Map<Problem, Map<Choice, Problem.Response<Integer>>> problems;
-	private Map<Problem, Choice> answers; // maps problems --> correct choice (A|B|C|D)
+	/* maps each problem to all of the responses to that problem and their letter (A|B|C|D) */
+	private Map<Problem, Map<Choice, Response<Integer>>> problems;
+	
+	/* maps problems --> correct choice (A|B|C|D) */
+	private Map<Problem, Choice> answers;
+	
+	/* where the Worksheet will be printed */
 	private PrintStream out;
 	
+	/**
+	 * Enumerates the possible choices for a single problem
+	 */
 	public enum Choice {
 		A, B, C, D;
 	}
 	
+	/**
+	 * Constructs a worksheet based off of the ProblemGenerator -> number of problems map
+	 * 
+	 * @param pds maps ProblemGenerators to a number of problems to generate using that generator
+	 * @param out the PrintStream to print the worksheet to
+	 */
 	public Worksheet(Map<ProblemGenerator, Integer> pds, PrintStream out) {
-		problems = new HashMap<Problem, Map<Choice, Problem.Response<Integer>>>();
+		problems = new HashMap<Problem, Map<Choice, Response<Integer>>>();
 		answers = new HashMap<Problem, Choice>();
 		this.out = out;
 		
@@ -32,12 +57,12 @@ public class Worksheet {
 				Problem currProb = pg.next(); // the current problem
 				
 				// four incorrect responses
-				List<Problem.Response<Integer>> wrongResponses = 
+				List<Response<Integer>> wrongResponses = 
 											((IntAddProblem) currProb).getFourChoices();
 				
 				// (A|B|C|D) --> the response corresponding to that letter
-				Map<Choice, Problem.Response<Integer>> multipleChoice = 
-										new HashMap<Choice, Problem.Response<Integer>>();
+				Map<Choice, Response<Integer>> multipleChoice = 
+										new HashMap<Choice, Response<Integer>>();
 				
 				for (int j = 0; j < wrongResponses.size(); j++) {
 					Choice abcd = Choice.values()[j];
@@ -54,6 +79,12 @@ public class Worksheet {
 		
 	}
 	
+	/**
+	 * Writes the html representation of this worksheet to the PrintStream used to construct this
+	 * Worksheet
+	 * 
+	 * @throws IOException
+	 */
 	public void writeWorksheet() throws IOException {
 		// get a huge string of HTML for all the problems		
 		
@@ -82,21 +113,25 @@ public class Worksheet {
 		out.println(template.html());
 	}
 	
-	
+	/**
+	 * Returns the correct choice on the worksheet for the Problem passed in
+	 * 
+	 * @param p the Problem whose answer to find
+	 * @return the correct choice (A|B|C|D) for p
+	 */
 	public Choice rightAnswer(Problem p) {
 		return answers.get(p);
 	}
-	
-	
+
 	private String makeChoicesHTML(Problem p) {
 		StringBuilder sb = new StringBuilder();
-		Map<Choice, Problem.Response<Integer>> responses = problems.get(p);
+		Map<Choice, Response<Integer>> responses = problems.get(p);
 		
 		sb.append("<div><table class=\"choices\">");
 		
 		
 		for (Choice choice : Choice.values()) {
-			Problem.Response<Integer> r = responses.get(choice);
+			Response<Integer> r = responses.get(choice);
 			sb.append("<tr>");
 			sb.append("<td>").append(choice.name()).append("</td>");
 			sb.append("<td>").append(r.getKey()).append("</td>");
@@ -107,7 +142,4 @@ public class Worksheet {
 		
 		return sb.toString();
 	}
-
-	
-	
 }

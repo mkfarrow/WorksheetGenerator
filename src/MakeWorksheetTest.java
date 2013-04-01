@@ -14,6 +14,11 @@ import org.jsoup.nodes.Element;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
+/**
+ * Builds a Worksheet and prints its HTML to stdout
+ * 
+ * @author Mikey Farrow
+ */
 public class MakeWorksheetTest {
 	
 	private static final String addProbWithCarry = "{" + 
@@ -47,11 +52,11 @@ public class MakeWorksheetTest {
 	
 	public static void main(String[] args) throws IOException {
 		JsonParser parser = new JsonParser();
-		Map<ProblemGenerator, Integer> problems = new HashMap<ProblemGenerator,Integer>();
+		Map<ProblemGenerator, Integer> problems = new HashMap<ProblemGenerator, Integer>();
 		for (String probJSON : problemJSONs) {
 			JsonObject description = parser.parse(probJSON).getAsJsonObject();
 			ProblemGenerator pg = new ProblemGenerator(description);
-			problems.put(pg, 5);
+			problems.put(pg, 5); // five of each problem
 		}
 		
 		Worksheet ws = new Worksheet(problems, System.out);

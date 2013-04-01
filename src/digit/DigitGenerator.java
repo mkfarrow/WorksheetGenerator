@@ -1,3 +1,4 @@
+package digit;
 import java.util.Random;
 
 /**

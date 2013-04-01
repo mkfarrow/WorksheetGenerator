@@ -3,8 +3,21 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.HashSet;
+
+import problem.Problem;
+
 import com.google.gson.*;
 
+import descriptor.IntAddDescriptor;
+import descriptor.IntSubDescriptor;
+import descriptor.ProblemDescriptor;
+
+/**
+ * Parses JSON descriptions of a types of math problems to produce Problems that fit that
+ * description.
+ * 
+ * @author Mikey Farrow
+ */
 public class ProblemGenerator {
 	
 	/*
@@ -20,20 +33,9 @@ public class ProblemGenerator {
 	private static final Gson parser = new Gson();
 	
 	/*
-	 * This will probably change once a single instance of ProblemGenerator can generate multiple
-	 * problem types
+	 * The JSON gets turned into a ProblemDescriptor which is used to create Problems
 	 */
 	private ProblemDescriptor pd;
-		
-	/**
-	 * Constructs a ProblemGenerator that can generate random problems of the type described by
-	 * the ProblemDescriptor passed in
-	 * 
-	 * @param pd the type of problem the ProblemGenerator will generate
-	 */
-	public ProblemGenerator(ProblemDescriptor pd) {	
-		this.pd = pd;
-	}
 	
 	/**
 	 * Constructs a ProblemGenerator that can generate random problems of the type described by
@@ -77,8 +79,8 @@ public class ProblemGenerator {
 		// populate the map with all the problem types
 		result.put("intAdd", new IntAddDescriptor());
 		result.put("intSub", new IntSubDescriptor());
-		result.put("fracAdd", new FracAddDescriptor());
-		result.put("fracSub", new FracSubDescriptor());
+		// result.put("fracAdd", new FracAddDescriptor()); /* someday this will be implemented */
+		// result.put("fracSub", new FracSubDescriptor()); /* someday this will be implemented */
 		
 		return result;
 	}
