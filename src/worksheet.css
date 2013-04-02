@@ -1,0 +1,68 @@
+.worksheet {
+  border: 1px solid black;
+	height: 11in;
+	width: 8.5in;
+	/* to centre page on screen*/
+	margin:1cm auto;
+	position:relative;
+}
+
+.problem {
+	border-bottom: 1px black solid;
+}
+
+.ws_header,  .ws_footer{
+	width:80%;
+	height:1in;
+	border: 2px black;
+	border-bottom:solid;
+	position:absolute;
+	margin-left:10%;
+}
+
+.ws_header .ws_label {
+	border-bottom:1px solid black;
+	min-height:0px;
+}
+
+.ws_problems {
+	width:8in;
+	position:absolute;
+	height:9.5in;
+	left:.25in;
+	top:1in;
+	padding:2%
+}
+
+.three_cols div {
+	float:left;
+	width:32%;
+	height:20%;
+}
+
+.four_cols div {
+	float:left;
+	width:24%;
+	height:20%;
+}
+
+.ws_header .ws_title {
+	font-size:16pt;
+	font-weight:bold;
+	margin-top:15px;
+	text-align:center;
+}
+
+
+.ws_footer {
+	border-top: solid;
+	border-bottom:none;
+	bottom:0px;
+	height:.5in;
+}
+
+.ws_footer .ws_page {
+	text-align:center;
+	font-style:italic;
+	margin:5px;
+}
